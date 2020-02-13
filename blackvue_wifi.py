@@ -11,6 +11,7 @@ import warnings
 import confidence
 import requests
 import wget
+import os
 from docopt import docopt
 from tqdm import tqdm
 
@@ -59,6 +60,14 @@ class BlackVueClient:
         """
         for recording in tqdm(self.list_recordings()):
             self.download(recording, *args, **kwargs)
+
+    def download_missing_recordings(self, *args, **kwargs):
+        """
+        Download all not yet downloaded recordings on the connected dashcam with wget for Python.
+        """
+        for recording in tqdm(self.list_recordings()):
+            if not os.path.isfile(kwargs['out']+os.path.basename(recording)):
+                self.download(recording, *args, **kwargs)
 
     def get_config(self):
         """
@@ -121,7 +130,7 @@ def main():
         if options['--continuously']:
             print("Continous syncing will be included in the next version")
         else:
-            print("Incremental downloads will be included in the next version")
+            client.download_missing_recordings(out=options['<foldername>'])
 
 
 if __name__ == "__main__":
